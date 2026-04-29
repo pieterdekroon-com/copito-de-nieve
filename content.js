@@ -2,6 +2,7 @@
 //
 // Handmatig forceren tijdens het bouwen:
 // - Keyboard: ⌥⇧G (Alt+Shift+G) op elke http(s)-pagina
+// - Popup: klik op het extensie-icoon en gebruik "Test gorilla"
 // - Console: switch in devtools naar context "Copito de Nieve" → __copito()
 
 (() => {
@@ -16,8 +17,6 @@
   const ENTRY_MS = 400;
   const STARE_MS = 1800;
 
-  // De pool aan gorilla's. Wil je er later meer? Zet een nieuwe PNG in /assets
-  // en voeg de bestandsnaam toe aan deze lijst.
   const GORILLAS = [
     'gorilla1.png',
     'gorilla2.png',
@@ -25,6 +24,8 @@
     'gorilla4.png',
     'gorilla5.png'
   ];
+
+  let enabled = true;
 
   function summonGorilla() {
     const pick = GORILLAS[Math.floor(Math.random() * GORILLAS.length)];
@@ -41,8 +42,6 @@
 
     document.body.appendChild(container);
 
-    // Trigger de entry-animatie in de volgende frame — anders pakt de
-    // CSS transition niet omdat het element "al" zichtbaar is.
     requestAnimationFrame(() => {
       container.classList.add('gorilla-pop__container--visible');
     });
@@ -50,25 +49,39 @@
     setTimeout(() => {
       container.classList.remove('gorilla-pop__container--visible');
       container.classList.add('gorilla-pop__container--leaving');
-
-      // Ruim de DOM op zodra de exit-animatie klaar is.
       setTimeout(() => container.remove(), 500);
     }, ENTRY_MS + STARE_MS);
   }
 
-  // Dev hook: forceer een gorilla via ⌥⇧G, ongeacht CHANCE.
+  // Sneltoets — werkt alleen als de extensie aan staat.
   document.addEventListener('keydown', (e) => {
+    if (!enabled) return;
     if (e.altKey && e.shiftKey && e.code === 'KeyG') {
       e.preventDefault();
       summonGorilla();
     }
   });
 
-  // Ook bereikbaar vanuit devtools console (context-switch naar "Copito de Nieve").
+  // Test vanuit de popup — negeert de toggle, zodat je altijd kan testen.
+  chrome.runtime.onMessage.addListener((msg) => {
+    if (msg && msg.type === 'copito:test') summonGorilla();
+  });
+
+  // Devtools-hook (negeert toggle).
   window.__copito = summonGorilla;
 
-  // Normale page load: kleine delay zodat de pagina eerst rustig laadt.
-  if (Math.random() < CHANCE) {
-    setTimeout(summonGorilla, DELAY_MS);
-  }
+  // Random page-load pop respecteert de toggle.
+  chrome.storage.sync.get({ enabled: true }, (s) => {
+    enabled = s.enabled;
+    if (enabled && Math.random() < CHANCE) {
+      setTimeout(summonGorilla, DELAY_MS);
+    }
+  });
+
+  // Live updaten als je de toggle in de popup omzet.
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && changes.enabled) {
+      enabled = changes.enabled.newValue;
+    }
+  });
 })();
