@@ -26,7 +26,11 @@
     'gorilla6.png',
     'gorilla7.png',
     'gorilla8.png',
-    'gorilla9.png'
+    'gorilla9.png',
+    'gorilla10.png',
+    'gorilla11.png',
+    'gorilla12.png',
+    'gorilla13.png'
   ];
 
   let enabled = true;

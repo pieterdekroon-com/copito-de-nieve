@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Copito de Nieve",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "In memory of Copito de Nieve (1966–2003), the only albino gorilla that ever lived. He still drops by every now and then.",
   "icons": {
     "128": "icon.png"
