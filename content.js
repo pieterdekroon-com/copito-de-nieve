@@ -17,21 +17,7 @@
   const ENTRY_MS = 400;
   const STARE_MS = 1800;
 
-  const GORILLAS = [
-    'gorilla1.png',
-    'gorilla2.png',
-    'gorilla3.png',
-    'gorilla4.png',
-    'gorilla5.png',
-    'gorilla6.png',
-    'gorilla7.png',
-    'gorilla8.png',
-    'gorilla9.png',
-    'gorilla10.png',
-    'gorilla11.png',
-    'gorilla12.png',
-    'gorilla13.png'
-  ];
+  const GORILLAS = Array.from({ length: 17 }, (_, i) => `gorilla${i + 1}.webp`);
 
   let enabled = true;
 
@@ -78,11 +64,22 @@
   // Devtools-hook (negeert toggle).
   window.__copito = summonGorilla;
 
+  // Alleen spontane verschijningen tellen mee. De sneltoets, de testknop en de
+  // devtools-hook forceer je zelf — die horen niet in de statistiek.
+  function recordSighting() {
+    chrome.storage.sync.get({ sightings: 0 }, ({ sightings }) => {
+      chrome.storage.sync.set({ sightings: sightings + 1 });
+    });
+  }
+
   // Random page-load pop respecteert de toggle.
   chrome.storage.sync.get({ enabled: true }, (s) => {
     enabled = s.enabled;
     if (enabled && Math.random() < CHANCE) {
-      setTimeout(summonGorilla, DELAY_MS);
+      setTimeout(() => {
+        summonGorilla();
+        recordSighting();
+      }, DELAY_MS);
     }
   });
 

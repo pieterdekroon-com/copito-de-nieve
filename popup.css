@@ -64,6 +64,13 @@ body {
   font-size: 12px;
 }
 
+.row__value {
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+}
+
 .toggle {
   position: relative;
   display: inline-flex;

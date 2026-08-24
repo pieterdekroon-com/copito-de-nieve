@@ -12,7 +12,9 @@ This extension is a small, quiet homage to him.
 
 On roughly 2% of page loads, Copito appears in the bottom-right corner of the page. He stays for about two seconds, looks at you, and then disappears. That's it. No menus, no notifications, no tracking, no interruption to what you're doing. Just a brief, unexpected visit from an old friend.
 
-Five different photographs of Copito are included, picked at random. Over time, you'll come to recognize each of his moods.
+Seventeen different photographs of Copito are included, picked at random. Over time, you'll come to recognize each of his moods.
+
+The popup keeps a running count of how often he has dropped by — only the spontaneous visits, not the ones you summon yourself.
 
 ## For the impatient
 
@@ -24,12 +26,13 @@ If 2% feels too rare, you can summon him manually:
 ## What this extension does not do
 
 - It does not collect any data about you.
+- It stores exactly two things: whether the extension is on, and how many times Copito has appeared. Both live in Chrome's own extension storage, which syncs across your Chrome profile.
 - It does not track your browsing history.
 - It does not send anything to any server.
 - It does not show ads.
 - It does not modify any website's content beyond briefly overlaying a small image.
 
-The source is deliberately tiny — around 60 lines of JavaScript — so anyone curious can read it in a minute.
+The source is deliberately tiny — under 100 lines of JavaScript — so anyone curious can read it in a minute.
 
 ## Install locally
 
@@ -45,7 +48,8 @@ After code changes: go to `chrome://extensions` and click the refresh icon on th
 - `manifest.json` — extension declaration
 - `content.js` — the logic (chance, random pick, animation timing)
 - `content.css` — positioning and animations
-- `assets/` — the five gorilla PNGs
+- `assets/` — the 17 gorilla WebPs (1000×1000, quality 90)
+- `assets-src/` — the original full-size PNGs, kept locally, not shipped or committed
 - `icon.png` — 128×128 toolbar icon
 
 ## Knobs to turn
@@ -61,9 +65,15 @@ In `content.css`:
 
 ## More or fewer gorillas
 
-In `content.js` there's a `GORILLAS` array with filenames. Add a new entry and drop the matching PNG into `/assets`, and it joins the random pool. No manifest changes needed — the `assets/*.png` wildcard is already there.
+`content.js` builds the `GORILLAS` list from a count: `Array.from({ length: 17 }, ...)`. Drop `gorilla18.webp` into `/assets`, bump the number to 18, and it joins the random pool. No manifest changes needed — the `assets/*.webp` wildcard is already there.
 
-Transparent PNGs look best. Max ~1000px tall is plenty (the CSS scales to 50vh, max 500px).
+Transparency looks best. Keep the source PNG in `assets-src/` and convert:
+
+```bash
+python3 -c "from PIL import Image; im=Image.open('assets-src/gorilla18.png').convert('RGBA'); im.thumbnail((1000,1000), Image.LANCZOS); im.save('assets/gorilla18.webp','WEBP',quality=90,method=6)"
+```
+
+1000px is plenty — the CSS scales to 50vh, max 500px, so that covers retina.
 
 ## Why
 
